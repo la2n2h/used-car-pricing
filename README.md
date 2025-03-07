@@ -360,6 +360,7 @@ the (linear) relationship between an 'engine-size' and the'price'
 ```
 sns.regplot(x='engine-size', y='price', data = df)
 plt.ylim(0,)
+df[["engine-size", "price"]].corr()
 ```
 ![image](https://github.com/user-attachments/assets/6b0e27f0-c7a3-4cae-8c8d-e68765c906af)
 ![image](https://github.com/user-attachments/assets/7ad5fc07-1fe3-4dd9-8160-185b4299123d)
@@ -373,11 +374,113 @@ the (linear) relationship between an 'highway-mpg'  and the 'price'
 sns.regplot(x='highway-mpg', y='price', data = df)
 plt.ylim(0,)
 plt.show()
+df[["highway-mpg", "price"]].corr()
 ```
 ![image](https://github.com/user-attachments/assets/43baad50-f770-4107-8ac7-07f73e11f06f)
+![image](https://github.com/user-attachments/assets/72aa5a1d-7637-49e0-bbe0-4a31b4d821af)
+
+The chart and the correlation coefficient of -0.704692 indicate a strong inverse relationship between highway fuel consumption (highway-mpg) and car price.
+Real-world prediction: If a car has a high mpg, we can expect its price to be lower.
+
+the (linear) relationship between an 'Peak RPM'  and the 'price'
+```
+sns.regplot(x='peak-rpm', y='price', data = df)
+plt.ylim(0,)
+plt.show()
+df[["hpeak-rpm", "price"]].corr()
+```
+![image](https://github.com/user-attachments/assets/69b1872a-1c4a-43d5-a5bd-6407e1827ffd)
+![image](https://github.com/user-attachments/assets/77937c36-1adb-478d-97eb-5edfdc9fdc57)
+
+Peak RPM is not a significant factor in determining car prices.
+Other factors such as engine size, horsepower, brand, and fuel efficiency may have a greater impact on car prices.
+
+the (linear) relationship between an 'Peak RPM'  and the 'price'
+```
+
+```
+## Categorical Variables
+relationship between "body-style" and "price"
+```
+sns.boxplot(x='body-style', y ='price', data = df)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/2eff6cf9-dff3-4967-a7b8-b58520d00590)
+
+Based on the boxplot, predicting price solely based on body style may not be highly accurate for several reasons:
+
+High Variability – The price range for each body style is quite large. For example:
+Convertible & Hardtop show the highest variation in prices.
+Hatchbacks generally have lower prices but still exhibit some outliers.
+Sedans & Wagons have a moderate spread.
+
+Overlapping Price Ranges – Many body styles have overlapping price distributions. For instance, a high-end sedan might be more expensive than a cheap convertible, making it hard to distinguish prices just by body style.
 
 
 
+Examine 
+"engine-location" and "price"
+```
+sns.boxplot(x="engine-location", y="price", data=df)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/70691f47-40dc-4313-9e19-8f4ea93920a3)
+
+Rear-Engine Vehicles Are More Expensive – Cars with rear engine locations have significantly higher prices, with a much smaller price range. This suggests that rear-engine cars are typically luxury or high-performance vehicles.
+
+Front-Engine Vehicles Have a Wide Price Range – The prices of front-engine vehicles vary greatly, from low-cost to high-end models. There are many outliers in the higher price range, indicating that some front-engine cars can be very expensive, but most are relatively affordable.
+
+
+Examine  "drive-wheels" and "price"
+```
+sns.boxplot(x="drive-wheels", y="price", data=df)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/5786faaa-5b6a-4c08-b338-f9c9bf37f8be)
+
+RWD (Rear-Wheel Drive) Vehicles:
+Have the highest price range and variability.
+Many luxury or high-performance cars fall into this category, which contributes to higher prices.
+The median price is significantly higher compared to fwd and 4wd cars.
+Several outliers exceed $40,000.
+
+FWD (Front-Wheel Drive) Vehicles:
+Tend to be more affordable, with lower price variation.
+The median price is lower than rwd cars.
+A few outliers exist, but prices are mostly below $15,000.
+Common in economy cars and sedans.
+
+4WD (Four-Wheel Drive) Vehicles:
+Generally have a higher base price than FWD, but lower than RWD on average.
+Prices are more consistent with fewer outliers.
+Some higher-end SUVs or off-road vehicles could be responsible for the higher prices.
+Prediction Feasibility:
+Drive-wheels influence price, but it's not the only factor.
+RWD cars tend to be more expensive, while FWD cars are the most affordable.
+Overlapping price distributions make it hard to predict exact prices solely based on drive-wheel type.
+Other factors like brand, engine size, horsepower, and features also play a crucial role.
+
+Conclusion:
+Drive-wheels can be a useful feature in price prediction but should be combined with other variables for better accuracy. 
+
+## Descriptive Statistical Analysis
+The describe function automatically computes basic statistics for all continuous variables. Any NaN values are automatically skipped in these statistics.
+```
+df.describe()
+```
+![image](https://github.com/user-attachments/assets/304cd9cb-fbd9-4930-98a8-e3b883541376)
+
+understanding how many units of each drive-wheels
+```
+df['drive-wheels'].value_counts().to_frame()
+```
+![image](https://github.com/user-attachments/assets/52dbe3f1-a76c-49be-96d2-33af21a62cba)
+
+understanding how many units of each engine-location
+```
+df['engine-location'].value_counts().to_frame()
+```
+![image](https://github.com/user-attachments/assets/da8661e8-9b13-4622-956b-680267520339)
 
 
 
