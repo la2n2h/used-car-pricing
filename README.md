@@ -309,6 +309,75 @@ df = df.loc[:, ~df.columns.duplicated()]  # Giữ lại duy nhất một cột m
 df.to_csv('D:/Data anlysis- working sheet/python/data/auto_clean_df.csv')
 ```
 
+# Data analysis
+
+## load the cleaned data
+```
+df = pd.read_csv('D:/Data anlysis- working sheet/python/data/auto_clean_df.csv')
+df.head()
+```
+![image](https://github.com/user-attachments/assets/a4db4f6a-0b9e-4840-8f19-7898f6feaa7b)
+
+## Analyzing Individual Feature Patterns Using Visualization
+import visualization packaged
+```
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+```
+print dataframe type for understand the of variable which are dealing with
+```
+df.dtypes
+```
+![image](https://github.com/user-attachments/assets/5b48693f-475c-4f3e-a59c-8152b0e86f57)
+
+#### calculate the correlation between variables of type "int64" or "float64"
+calculate the correlation between variables of type "int64" or "float64" using the method "corr" to: Identify Relationships Between Variables, Feature Selection for Machine Learning, Detect Multicollinearity.
+Coefficient = 1 → The two variables have a perfect correlation (both increase or both decrease).
+Coefficient close to 1 (e.g., 0.95) → The two variables have a strong positive correlation (one increases, the other also increases).
+Coefficient close to 0 (e.g., 0.05) → The two variables are not related to each other.
+Coefficient close to -1 (e.g., -0.85) → The two variables have a strong negative correlation (one increases, the other decreases).
+(The diagonal elements are always one)
+```
+numeric_df = df.select_dtypes(include=['float64', 'int64'])
+numeric_df.corr()
+```
+![image](https://github.com/user-attachments/assets/04721294-6232-4697-9795-43e60fc90d2c)
+
+Find the correlation between the following columns: bore, stroke, compression-ratio, and horsepower.
+```
+df[['bore','stroke','compression-ratio','horsepower']].corr()
+```
+![image](https://github.com/user-attachments/assets/4e0e8fb8-a777-4d81-a7af-e3f582c86891)
+bore has a significant impact on horsepower, so increasing the bore diameter can help increase engine power.
+compression-ratio has a slight but negative effect on horsepower, meaning adjustments to the compression ratio should be carefully considered.
+stroke does not have a meaningful impact on horsepower, indicating that piston stroke length is not a key factor in determining engine power.
+
+#### deal with Continuous Numerical Variables
+In order to start understanding the (linear) relationship between an individual variable and the price, use "regplot" which plots the scatterplot plus the fitted regression line for the data
+
+the (linear) relationship between an 'engine-size' and the'price'
+```
+sns.regplot(x='engine-size', y='price', data = df)
+plt.ylim(0,)
+```
+![image](https://github.com/user-attachments/assets/6b0e27f0-c7a3-4cae-8c8d-e68765c906af)
+![image](https://github.com/user-attachments/assets/7ad5fc07-1fe3-4dd9-8160-185b4299123d)
+
+Observations on the Relationship: The regression line has a steep slope, indicating that as engine size increases, car price also increases. Most data points are close to the regression line.
+Some points are farther away (outliers), but the overall trend still suggests a strong linear relationship.
+The correlation coefficient is 0.872335 high (close to 1) means there is a strong positive linear relationship between engine-size and the price
+
+the (linear) relationship between an 'highway-mpg'  and the 'price'
+```
+sns.regplot(x='highway-mpg', y='price', data = df)
+plt.ylim(0,)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/43baad50-f770-4107-8ac7-07f73e11f06f)
+
+
+
 
 
 
