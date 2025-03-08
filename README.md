@@ -482,6 +482,78 @@ df['engine-location'].value_counts().to_frame()
 ```
 ![image](https://github.com/user-attachments/assets/da8661e8-9b13-4622-956b-680267520339)
 
+## Basics of Grouping
+group by the variable "drive-wheels". We see that there are 3 different categories of drive wheels
+```
+df['drive-wheels'].unique() # check the type of 'drive-wheels'
+```
+![image](https://github.com/user-attachments/assets/8f8659d1-90cf-4185-b8f2-9960d1f09957)
+
+check on average, which type of drive wheel is most valuable, we can group "drive-wheels" and then average them
+```
+df_1 = df[['drive-wheels', 'body-style', 'price']] # select columns need to be grouped.
+group_1 = df_1.groupby(['drive-wheels', 'body-style'], as_index=False).agg({'price': 'mean'})
+group_2 = df_1.groupby(['drive-wheels'], as_index=False).agg({'price': 'mean'})
+group_1 
+group_2
+```
+![image](https://github.com/user-attachments/assets/d35ed1c7-2ee9-478a-a907-fa92d618fec4)
+
+![image](https://github.com/user-attachments/assets/4be88265-346f-40d1-83ba-c95f3751161f)
+
+From data, it seems rear-wheel drive vehicles are, on average, the most expensive, while 4-wheel and front-wheel are approximately the same in price.
+
+leave the drive-wheels variable as the rows of the table, and pivot body-style to become the columns of the table
+```
+group_1_pivot = group_1.pivot(index='drive-wheels', columns = 'body-style').fillna(0)
+group_1_pivot['Row Average'] = group_1_pivot.mean(axis=1)
+group_1_pivot.loc['Col Average'] = group_1_pivot.mean(axis=0)
+group_1_pivot
+```
+![image](https://github.com/user-attachments/assets/92a86460-9c25-4a30-8d21-1444ace8f51a)
+
+check on average, which type of body-style is most valuable, we can group "body-style" and then average them
+```
+group_3= df_1.groupby(['body-style'], as_index=False).agg({'price': 'mean'})
+group_3
+```
+From data, it seems hardtop and convertible vehicles are, on average, the most expensive, while sedan and sedan are approximately the same in price in the middle, hatchback is cheapest price.
+
+visualize the relationship between Body Style, drive-wheels vs Price
+```
+plt.pcolor(group_1_pivot, cmap='RdBu')
+plt.xticks(np.arange(0.5, len(group_1_pivot.columns), 1), group_1_pivot.columns.levels[1], rotation=90)
+plt.yticks(np.arange(0.5, len(group_1_pivot.index), 1), group_1_pivot.index)
+plt.colorbar()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/684b0058-c558-4045-8a30-6f8c8f550fec)
+
+Luxury cars → RWD drive type (convertibles & sedans) are the most expensive.
+Budget cars → FWD drive type (hatchbacks & wagons) are the cheapest.
+4WD cars have a mix of low and mid-range pricing, depending on their use case.
+
+## Correlation and Causation
+```
+from scipy import stats # import scipy package
+```
+p-value is 0.001: we say there is strong evidence that the correlation is significant.
+
+the p-value is 0.05: there is moderate evidence that the correlation is significant.
+
+the p-value is 0.1: there is weak evidence that the correlation is significant.
+
+the p-value is 0.1: there is no evidence that the correlation is significant.
 
 
 
+calculate the Pearson Correlation Coefficient and P-value of numberic columns and 'price'.
+```
+columns_to_check = ['wheel-base', 'horsepower', 'length', 'width', 'curb-weight', 'engine-size','bore', 'city-mpg', 'highway-mpg']
+for column in columns_to_check :
+    pearson_coef, p_value = stats.pearsonr(df[column], df['price'])
+    print(f"The Pearson Correlation Coefficient between {column} is", pearson_coef, " with a P-value of P =", p_value)
+```
+![image](https://github.com/user-attachments/assets/3b71cc97-99c0-470a-9bcf-046d74e143e2)
+
+The Pearson correlation analysis shows that engine size (0.872), curb weight (0.834), and horsepower (0.810) have the strongest positive correlations with price, indicating that as these values increase, price tends to increase as well. Conversely, city-mpg (-0.687) and highway-mpg (-0.705) show strong negative correlations, meaning that better fuel efficiency is generally associated with lower car prices. All correlations have extremely low p-values, confirming that these relationships are statistically significant.
