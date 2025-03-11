@@ -557,3 +557,197 @@ for column in columns_to_check :
 ![image](https://github.com/user-attachments/assets/3b71cc97-99c0-470a-9bcf-046d74e143e2)
 
 The Pearson correlation analysis shows that engine size (0.872), curb weight (0.834), and horsepower (0.810) have the strongest positive correlations with price, indicating that as these values increase, price tends to increase as well. Conversely, city-mpg (-0.687) and highway-mpg (-0.705) show strong negative correlations, meaning that better fuel efficiency is generally associated with lower car prices. All correlations have extremely low p-values, confirming that these relationships are statistically significant.
+
+# MODEL DEVELOPMENT
+develop several models that will predict the price of the car using the variables or features. This is just an estimate but should give us an objective idea of how much the car should cost.
+
+import package
+```
+! pip install seaborn
+```
+```
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seabon as sns
+```
+import data 
+```
+df = pd.read_csv('D:/Data anlysis- working sheet/python/data/auto_clean_df.csv')
+df.head()
+```
+
+## Linear Regression and Multiple Linear Regression
+Simple Linear Regression is a method to help us understand the relationship between two variables:
+
+The predictor/independent variable (X)
+The response/dependent variable (that we want to predict)(Y)
+The result of Linear Regression is a linear function that predicts the response (dependent) variable as a function of the predictor (independent) variable.
+
+```
+from sklearn.linear_model import LinearRegression # load the modules for linear regression
+```
+
+initialize a linear regression model, but it has not been trained on any data yet
+```
+lm = LinearRegression()
+lm
+```
+![image](https://github.com/user-attachments/assets/a8f7997f-2bea-4d6f-888c-a5acb4d5a0d6)
+
+Using simple linear regression, we will create a linear function with "highway-mpg" as the predictor variable and the "price" as the response variable.
+```
+x = df[['highway-mpg']] # predictor variable
+y = df[['price']] # response variable
+lm.fit(x, y) #Fit the linear model using highway-mpg
+Yhat=lm.predict(x) #output a prediction
+Yhat[0:5]
+```
+![image](https://github.com/user-attachments/assets/21712d25-d77e-4aef-b9ce-0480f3b595fd)
+
+value of the intercept (a)
+```
+lm.intercept_
+```
+![image](https://github.com/user-attachments/assets/52843b62-b3c7-4593-96cb-386ce7c1a8ea)
+
+value of slope (b)
+```
+lm.coef_
+```
+![image](https://github.com/user-attachments/assets/a128b682-55f0-499b-a4d1-2c1ba8ee8e77)
+
+get a final linear model with the structure: Yhat = a + bX
+
+Price = 38423.31 - 821.73 x highway-mpg
+
+plot a linear regression graph
+```
+sns.regplot (x = x, y = y)
+plt.xlabel("Highway MPG")
+plt.ylabel("Price")
+plt. title("Linear Regression: Price vs Highway MPG")
+plt.ylim(0,)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/04a03444-dbca-41eb-b4d1-4095edf40bcf)
+
+Negative correlation:
+The regression line has a negative slope → As Highway MPG increases, Price decreases.
+This makes sense: Cars with higher fuel efficiency tend to be cheaper.
+
+Model fit:
+The data points do not perfectly align with the regression line, showing significant scatter.
+This suggests that the relationship between Price and Highway MPG is not strictly linear.
+
+Wide light blue confidence band: This suggests high uncertainty in the model, meaning Highway MPG is not the sole factor affecting car prices.
+Presence of outliers: Some cars have very high or very low prices that do not follow the general trend.
+```
+sns.residplot(x=df['highway-mpg'], y=df['price'])
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/bed819ad-f5f4-4db2-81c1-fb779302f94b)
+
+X-axis: highway-mpg.
+Y-axis: residual (the error between the actual value and the prediction).
+Dotted line: The zero mark, meaning that if the residual is evenly distributed around this line, the model is suitable.
+📌 Observe the chart:
+
+The residual is not randomly distributed around 0.
+At both ends (low & high highway-mpg), the residual tends to increase or decrease sharply.
+A curvilinear pattern (U-shape) appears.
+⏳ ⛔ Conclusion:
+
+This is a sign that the linear model is not suitable. Let's see if we can try fitting a polynomial model to the data instead.
+
+```
+# creaete function to plot the data
+def PlotPolly(model, independent_variable, dependent_variabble, Name):
+    x_new = np.linspace(15, 55, 100)
+    y_new = model(x_new)
+
+    plt.plot(independent_variable, dependent_variabble, '.', x_new, y_new, '-')
+    plt.title('Polynomial Fit with Matplotlib for Price ~ Length')
+    ax = plt.gca()
+    ax.set_facecolor((0.898, 0.898, 0.898))
+    fig = plt.gcf()
+    plt.xlabel(Name)
+    plt.ylabel('Price of Cars')
+
+    plt.show()
+    plt.close()
+
+
+# get the variables
+x = df['highway-mpg']
+y = df['price']
+
+
+#fit the polynomial using the function polyfit, then use the function poly1d to display the polynomial function.
+f = np.polyfit(x, y, 3)
+p = np.poly1d(f)
+print(p)
+
+
+# Let's plot the function
+PlotPolly(p, x, y, 'highway-mpg')
+```
+![image](https://github.com/user-attachments/assets/12cf6969-d57a-4e72-a3b6-d9aec368bd96)
+
+
+haracteristics of the Chart:
+✅ Original Data (blue dots): Represents the actual data points.
+✅ Orange Curve: The fitted polynomial regression model of degree 3.
+✅ Polynomial Equation Displayed on the Chart:
+
+ 
+This equation is used to predict car prices based on miles per gallon.
+
+Observations:
+The data is nonlinear, meaning a simple linear regression (straight line) is not suitable.
+A third-degree polynomial model fits better since it captures the nonlinear variations in the data.
+Trend: As highway-mpg increases (the car becomes more fuel-efficient), car price decreases.
+Saturation Effect: When highway-mpg is very high (above 40), car prices do not drop significantly anymore.
+
+Conclusion:
+Polynomial regression is a better choice when data has a nonlinear relationship.
+This model can predict car prices more accurately than linear regression.
+
+## Multiple Linear Regression
+explain the relationship between one continuous response (dependent) variable and two or more predictor (independent) variables
+```
+lm2 = LinearRegression()
+x1 = df[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg']]
+y1 = df[['price']]
+lm2. fit(x1, y1)
+lm2.intercept_
+lm2.coef_
+```
+a = array([-15811.86376773])
+b = array([[53.53022809,  4.70805253, 81.51280006, 36.1593925 ]])
+
+Yhat = -15811.863 + 53.53 *'horsepower' + 4.70* 'curb-weight' + 81.51*'engine-size' + 36.159* 'highway-mpg'
+
+look at the distribution of the fitted values that result from the model and compare it to the distribution of the actual values.
+```
+Y_hat = lm2.predict(x1)
+ax1 = sns.distplot(df['price'], hist=False, color="r", label="Actual Value")
+sns.distplot(Y_hat, hist=False, color="b", label="Fitted Values" , ax=ax1)
+```
+![image](https://github.com/user-attachments/assets/b3d4bcaa-d59f-4d83-ae17-05731397ab31)
+
+Red Line: Likely represents the actual price distribution
+Blue Line: Likely represents the predicted price distribution from a regression model
+
+Peak of the chart
+
+Both curves have peaks around 10,000 - 15,000, indicating that most car prices fall within this range.
+The red curve is slightly higher, suggesting that actual prices are more concentrated in this range.
+Tail section (20,000 and above)
+
+Higher price values (>20,000): There are some differences between the two curves.
+The red curve has a small bump around 30,000 - 40,000, indicating a subset of cars with higher prices.
+Differences between actual and predicted values
+
+If the blue curve represents predicted prices from the model, the model performs well in the common price range (10,000 - 20,000).
+However, it may struggle to predict higher prices (30,000+).
