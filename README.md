@@ -751,3 +751,193 @@ Differences between actual and predicted values
 
 If the blue curve represents predicted prices from the model, the model performs well in the common price range (10,000 - 20,000).
 However, it may struggle to predict higher prices (30,000+).
+
+### We can perform a polynomial transform on multiple features. 
+we import the module
+```
+from sklearn.preprocessing import PolynomialFeatures
+```
+Create a PolynomialFeatures object of degree 2
+```
+pr=PolynomialFeatures(degree=2)
+pr
+```
+
+```
+x1_pr=pr.fit_transform(x1)
+```
+
+``
+x1.shape
+```
+In the original data, there are 201 samples and 4 features.
+```
+```
+Z_pr.shape
+```
+After the transformation, there are 201 samples and 15 features.
+
+### Pipeline
+Data Pipelines simplify the steps of processing the data. We use the module Pipeline to create a pipeline. We also use StandardScaler as a step in our pipeline.
+```
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+```
+create the pipeline by creating a list of tuples including the name of the model or estimator and its corresponding constructor.
+```
+Input=[('scale',StandardScaler()), ('polynomial', PolynomialFeatures(include_bias=False)), ('model',LinearRegression())]
+```
+input the list as an argument to the pipeline constructor
+```
+pipe=Pipeline(Input)
+pipe
+```
+![image](https://github.com/user-attachments/assets/d0ea24df-bd2e-4bb7-b951-60a79421e43c)
+
+First, we convert the data type x1 to type float to avoid conversion warnings that may appear as a result of StandardScaler taking float inputs.
+Then, we can normalize the data, perform a transform and fit the model simultaneously.
+```
+Z = x1.astype(float)
+pipe.fit(x1,y)
+```
+![image](https://github.com/user-attachments/assets/44643580-971c-4977-a72f-0c0655eb2872)
+
+Similarly, we can normalize the data, perform a transform and produce a prediction simultaneously.
+```
+ypipe=pipe.predict(Z)
+ypipe[0:4]
+```
+![image](https://github.com/user-attachments/assets/cb91305c-6ff7-489c-87cb-d11ded7ae4e6)
+
+Create a pipeline that standardizes the data, then produce a prediction using a linear regression model using the features Z and target y.
+```
+Input=[('scale',StandardScaler()),('model',LinearRegression())]
+pipe=Pipeline(Input)
+pipe.fit(Z,y)
+ypipe=pipe.predict(Z)
+ypipe[0:10]
+```
+###  Measures for In-Sample Evaluation
+When evaluating our models, not only do we want to visualize the results, but we also want a quantitative measure to determine how accurate the model is.
+Model 1: Simple Linear Regression
+```
+lm.fit(x, y)
+# Find the R^2
+print('The R-square is: ', lm.score(x, y))
+```
+![image](https://github.com/user-attachments/assets/6a4ec737-5f14-4454-a443-55a7a8d01148)
+
+ predict the output i.e., "yhat" using the predict method, where X is the input variable. calculate the MSE
+```
+Yhat=lm.predict(X)
+print('The output of the first four predicted value is: ', Yhat[0:4])
+```
+The output of the first four predicted value is:  [16236.50464347 16236.50464347 17058.23802179 13771.3045085 ]
+
+import the function mean_squared_error from the module metrics:
+```
+from sklearn.metrics import mean_squared_error
+```
+```
+compare the predicted results with the actual results
+```
+Model 2: Multiple Linear Regression
+calculate the R^2:
+```
+lm.fit(Z, df['price'])
+# Find the R^2
+print('The R-square is: ', lm.score(Z, df['price']))
+```
+We can say that ~80.896 % of the variation of price is explained by this multiple linear regression "multi_fit".
+
+calculate the MSE
+```
+Y_predict_multifit = lm.predict(Z)
+```
+compare the predicted results with the actual results
+```
+print('The mean square error of price and predicted value using multifit is: ', \
+      mean_squared_error(df['price'], Y_predict_multifit))
+```
+
+Model 3: Polynomial Fit
+calculate the R^2
+```
+from sklearn.metrics import r2_score
+```
+apply the function to get the value of R^2
+```
+r_squared = r2_score(y, p(x))
+print('The R-square value is: ', r_squared)
+```
+calculate the MSE
+```
+mean_squared_error(df['price'], p(x))
+```
+
+## Prediction and Decision Making
+```
+import matplotlib.pyplot as plt
+import numpy as np
+
+%matplotlib inline 
+```
+Create a new input
+```
+new_input=np.arange(1, 100, 1).reshape(-1, 1)
+```
+Fit the model
+```
+lm.fit(X, Y)
+lm
+```
+Produce a prediction
+```
+yhat=lm.predict(new_input)
+yhat[0:5]
+```
+plot the data
+```
+plt.plot(new_input, yhat)
+plt.show()
+```
+
+![image](https://github.com/user-attachments/assets/53089737-fd64-4518-bdd3-a420d5ae5fc4)
+
+## Decision Making: Determining a Good Model Fit
+
+Now that we have visualized the different models, and generated the R-squared and MSE values for the fits, how do we determine a good model fit?
+
+What is a good R-squared value?
+When comparing models, the model with the higher R-squared value is a better fit for the data.
+
+What is a good MSE?
+When comparing models, the model with the smallest MSE value is a better fit for the data.
+
+Let's take a look at the values for the different models.
+
+Simple Linear Regression: Using Highway-mpg as a Predictor Variable of Price.
+
+R-squared: 0.49659118843391759
+MSE: 3.16 x10^7
+
+Multiple Linear Regression: Using Horsepower, Curb-weight, Engine-size, and Highway-mpg as Predictor Variables of Price.
+
+R-squared: 0.80896354913783497
+MSE: 1.2 x10^7
+
+Polynomial Fit: Using Highway-mpg as a Predictor Variable of Price.
+
+R-squared: 0.6741946663906514
+MSE: 2.05 x 10^7
+
+Simple Linear Regression Model (SLR) vs Multiple Linear Regression Model (MLR)
+MSE: We can see that Polynomial Fit brought down the MSE, since this MSE is smaller than the one from the SLR.
+R-squared: The R-squared for the Polynomial Fit is larger than the R-squared for the SLR, so the Polynomial Fit also brought up the R-squared quite a bit.
+Since the Polynomial Fit resulted in a lower MSE and a higher R-squared, we can conclude that this was a better fit model than the simple linear regression for predicting "price" with "highway-mpg" as a predictor variable.
+
+Multiple Linear Regression (MLR) vs. Polynomial Fit
+MSE: The MSE for the MLR is smaller than the MSE for the Polynomial Fit.
+R-squared: The R-squared for the MLR is also much larger than for the Polynomial Fit.
+Conclusion
+Comparing these three models, we conclude that the MLR model is the best model to be able to predict price from our dataset. This result makes sense since we have 27 variables in total and we know that more than one of those variables are potential predictors of the final car price.
