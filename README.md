@@ -941,3 +941,64 @@ MSE: The MSE for the MLR is smaller than the MSE for the Polynomial Fit.
 R-squared: The R-squared for the MLR is also much larger than for the Polynomial Fit.
 Conclusion
 Comparing these three models, we conclude that the MLR model is the best model to be able to predict price from our dataset. This result makes sense since we have 27 variables in total and we know that more than one of those variables are potential predictors of the final car price.
+
+# MODEL EVALUATION AND REFINEMENT
+
+### Functions for Plotting
+```
+# create a function to build a Distribution chart
+def DistributionPlot(RedFunction, BlueFunction, RedName, BlueName, Title):
+    width = 12
+    height = 10
+    plt.figure(figzize = (width, height))
+
+    # draw a Kernel Density Estimation (KDE)
+    ax1 = sns.kdeplot(RedFunction, color = 'r', label = RedName)
+    ax2 = sns.kdeplot(BlueFunction, color = 'b', label = BlueName, ax=ax1)
+
+    plt.title(Title)
+    plt.xlabel('Price (in dollars)')
+    plt.ylabel('Proportion of Cars')
+    plot.show()
+    plot.close()
+
+# create a function to build a Polynomial Regression plot
+def PollyPlot(xtrain, xtest, y_train, y_text, lr, poly_transform):
+    width = 12
+    height = 10
+    plot.figure(figsize = (width, height))
+
+# training data
+# testing data
+# lr: liner regression object
+    xmax = max(xtrain.values.max(), xtest.values.max())
+    xmin = min(xtrain.values.min(), xtest.values.min())
+
+    x = np.arrange(xmin, xmax, 0.1)
+
+    plt.plot(xtrain, ytrain, 'ro', label = "Training data")
+    plt.plot(x_test, y_test, 'go', label = 'Testing data')
+    plt.plot(x, lr.predict(poly_transform.fit_transform(x.reshape(-1, 1))), label = 'Predicted Function')
+    plt.ylim([-10000, 60000])
+    pl.ylabel('Price')
+    plt.legend()
+```
+### Training and Testing
+```
+# place the target data price in a separate dataframe y_data
+y_data = df['price']
+
+# Drop price data in dataframe x_data
+x_data=df.drop('price',axis=1)
+
+# randomly split our data into training and testing data using the function train_test_split
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.10, random_state=1)
+
+print('number of test samples:', x_test.shape[0])
+print('number of training samples:', x_train.shape[0])
+```
+![image](https://github.com/user-attachments/assets/c356e9e4-398d-4735-aa9f-759ee024aba0)
+
+
