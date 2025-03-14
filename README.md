@@ -990,8 +990,9 @@ y_data = df['price']
 
 # Drop price data in dataframe x_data
 x_data=df.drop('price',axis=1)
-
-# randomly split our data into training and testing data using the function train_test_split
+````
+```
+# randomly split our data into training and testing data using the function train_test_split with use 10% dataset for testing
 from sklearn.model_selection import train_test_split
 
 x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.10, random_state=1)
@@ -1000,5 +1001,152 @@ print('number of test samples:', x_test.shape[0])
 print('number of training samples:', x_train.shape[0])
 ```
 ![image](https://github.com/user-attachments/assets/c356e9e4-398d-4735-aa9f-759ee024aba0)
+
+```
+# import LinearRegression from the modul linear_model
+from sklearn.linear_model import LinearRegression
+
+# create a Linear Regression object:
+lre=LinearRegression()
+
+# fit the model using the feature 'horsepower'
+lre.fit(x_train[['horsepower']], y_train)
+
+# calculate the R^2 on the test data:
+test_R = lre.score(x_test[['horsepower']], y_test)
+print ('R^2 on the test data:', test_R)
+# calculate the R^2 on the test data:
+train_R = lre.score(x_train[['horsepower']], y_train)
+print('R^2 on the test data:', train_R)
+```
+![image](https://github.com/user-attachments/assets/15d6bbeb-2594-471c-8d7a-b9cddb03a69c)
+
+We can see the R^2 is much smaller using the test data compared to the training data. mean the model is overfitting. 
+
+```
+# randomly split our data into training and testing data using the function train_test_split with use 40% dataset for testing
+from sklearn.model_selection import train_test_split
+
+x_train1, x_test1, y_train1, y_test1 = train_test_split(x_data, y_data, test_size=0.40, random_state=1)
+
+print('number of test samples:', x_test1.shape[0])
+print('number of training samples:', x_train1.shape[0])
+```
+![image](https://github.com/user-attachments/assets/55579bdd-ad11-4719-84e7-2db3fba86304)
+
+
+```
+# import LinearRegression from the modul linear_model
+from sklearn.linear_model import LinearRegression
+
+# create a Linear Regression object:
+lre1=LinearRegression()
+
+# fit the model using the feature 'horsepower'
+lre1.fit(x_train1[['horsepower']], y_train1)
+
+# calculate the R^2 on the test data:
+test_R1 = lre1.score(x_test1[['horsepower']], y_test1)
+print ('R^2 on the test data 1:', test_R1)
+# calculate the R^2 on the test data:
+train_R1 = lre1.score(x_train1[['horsepower']], y_train1)
+print('R^2 on the train data 1:', train_R1)
+```
+![image](https://github.com/user-attachments/assets/444dd32d-efc4-4abe-9c01-046c551e343e)
+These two values are quite close (with a difference of about 0.06), indicating that model has relatively stable performance between the training and testing sets.
+It's normal for 𝑅^2 on the train set to be slightly higher than on the test set because the model tends to perform better on data it has already seen.
+No signs of severe overfitting, No signs of underfitting
+
+### Cross-Validation Score
+```
+# import cross_val_score from the model model_selection
+from sklearn.model_selection import cross_val_score
+
+# input the object, the feature ("horsepower"), and the target data (y_data). The parameter 'cv' determines the number of folds. In this case, it is 4.
+Rcross = cross_val_score(lre, x_data[['horsepower']], y_data, cv=4)
+Rcross
+```
+![image](https://github.com/user-attachments/assets/336ed600-2100-4750-84e5-7ad15084ea00)
+These values vary from about 0.48 to 0.77, indicating some level of inconsistency across the folds
+
+```
+# calculate the average and standard deviation of our estimate
+print('The mean of the folds are', Rcross.mean(), 'and the standard deviation is', Rcross.std())
+```
+![image](https://github.com/user-attachments/assets/91202cd8-a2d6-4948-912a-755c0c971c58)
+
+Mean R^2 Interpretation
+The average R^2 score is 0.522, meaning the model explains 52.2% of the variance in the target variable on average.
+This indicates moderate predictive performance, but there's still a large portion of variance (47.8%) that the model fails to capture.
+
+High Standard Deviation (0.291) A high standard deviation suggests that the model's performance fluctuates significantly across different folds.
+
+```
+# use negative squared error as a score
+-1*cross_val_score(lre, x_data[['horsepowe']], y_data, cv=4, scoring = 'neg_mean_squared_error')
+```
+![image](https://github.com/user-attachments/assets/177620dd-7d8c-4edd-bd11-a94789f6415b)
+
+MSE varies significantly from ~12M to ~43M, indicating instability across different test sets.
+Fold 2 has an extremely high MSE (43M), which is more than 3 times larger than Fold 3 (~12M).
+This suggests that the model is not stable, possibly due to overfitting, outliers, or missing important features.
+lets Calculate the average R^2 using two folds.
+
+```
+vRcross1 = cross_val_score(lre, x_data[['horsepower']], y_data, cv=2)
+print('R in 4 folds ', Rcross1)
+print('R mean ', Rcross1.mean())
+print('R std ', Rcross1.std())
+```
+![image](https://github.com/user-attachments/assets/56d33a2e-06c0-4371-b238-1289a762e6dd)
+
+```
+# use the function 'cross_val_predict' to predict the output. The function splits up the data into the specified number of folds, with one fold for testing and the other folds are used for training
+
+from sklearn.model_selection import cross_val_predict
+yhat = cross_val_predict(lre,x_data[['horsepower']], y_data,cv=4)
+yhat[0:5]
+```
+![image](https://github.com/user-attachments/assets/5685485f-2d6b-434f-8b04-6839d1348246)
+
+### Overfitting, Underfitting and Model Selection
+It turns out that the test data, sometimes referred to as the "out of sample data", is a much better measure of how well your model performs in the real world.
+
+```
+# create Multiple Linear Regression objects and train the model using 'horsepower', 'curb-weight', 'engine-size' and 'highway-mpg' as features.
+lr = LinearRegression()
+lr.fit(x_train[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg']], y_train)
+
+# Prediction using training data
+yhat_train = lr.predict(x_train[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg']])
+yhat_train[0:5]
+
+# Prediction using test data
+yhat_test = lr.predict(x_test[['horsepower', 'curb-weight', 'engine-size', 'highway-mpg']])
+yhat_test[0:5]
+
+#perform some model evaluation using our training and testing data separatel
+# import the seaborn and matplotlib library for plotting
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+
+# examine the distribution of the predicted values of the training data
+Title = 'Distribution  Plot of  Predicted Value Using Training Data vs Training Data Distribution'
+DistributionPlot(y_train, yhat_train, "Actual Values (Train)", "Predicted Values (Train)", Title)
+
+```
+![image](https://github.com/user-attachments/assets/f7f4db06-d1ae-4a9b-aafd-adbea2aa5743)
+Plot of predicted values using the training data compared to the actual values of the training data
+
+The model seems to be doing well in learning from the training dataset. But what happens when the model encounters new data from the testing dataset?
+
+```
+Title='Distribution  Plot of  Predicted Value Using Test Data vs Data Distribution of Test Data'
+DistributionPlot(y_test,yhat_test,"Actual Values (Test)","Predicted Values (Test)",Title)
+```
+![image](https://github.com/user-attachments/assets/55adfea5-e705-498c-90ce-886ae0fa0cdd)
+
+ When the model generates new values from the test data, we see the distribution of the predicted values is much different from the actual target values.
 
 
